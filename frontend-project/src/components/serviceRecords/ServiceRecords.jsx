@@ -19,9 +19,9 @@ const ServiceRecords = () => {
   const [success, setSuccess] = useState('');
   const [editMode, setEditMode] = useState(false);
   const [currentRecord, setCurrentRecord] = useState(null);
-  
+
   const { plateNumber, serviceCode, amountPaid } = formData;
-  
+
   // Fetch all service records, cars, and services
   const fetchData = async () => {
     try {
@@ -30,7 +30,7 @@ const ServiceRecords = () => {
         axios.get('http://localhost:5000/api/cars'),
         axios.get('http://localhost:5000/api/services')
       ]);
-      
+
       setRecords(recordsRes.data);
       setCars(carsRes.data);
       setServices(servicesRes.data);
@@ -41,15 +41,15 @@ const ServiceRecords = () => {
       setLoading(false);
     }
   };
-  
+
   useEffect(() => {
     fetchData();
   }, []);
-  
+
   const onChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setFormError('');
-    
+
     // If selecting a service, auto-fill the amount
     if (e.target.name === 'serviceCode') {
       const selectedService = services.find(service => service.ServiceCode === e.target.value);
@@ -62,7 +62,7 @@ const ServiceRecords = () => {
       }
     }
   };
-  
+
   const resetForm = () => {
     setFormData({
       plateNumber: '',
@@ -72,16 +72,16 @@ const ServiceRecords = () => {
     setEditMode(false);
     setCurrentRecord(null);
   };
-  
+
   const onSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate form
     if (!plateNumber || !serviceCode || !amountPaid) {
       setFormError('Please fill in all fields');
       return;
     }
-    
+
     try {
       if (editMode && currentRecord) {
         // Update existing record
@@ -92,15 +92,15 @@ const ServiceRecords = () => {
         await axios.post('http://localhost:5000/api/service-records', formData);
         setSuccess('Service record added successfully');
       }
-      
+
       // Reset form
       resetForm();
-      
+
       // Clear success message after 3 seconds
       setTimeout(() => {
         setSuccess('');
       }, 3000);
-      
+
       // Refresh data
       fetchData();
     } catch (err) {
@@ -108,7 +108,7 @@ const ServiceRecords = () => {
       setFormError(err.response?.data?.msg || 'Failed to process service record');
     }
   };
-  
+
   const onEdit = (record) => {
     setFormData({
       plateNumber: record.PlateNumber,
@@ -118,18 +118,18 @@ const ServiceRecords = () => {
     setEditMode(true);
     setCurrentRecord(record);
   };
-  
+
   const onDelete = async (recordNumber) => {
     if (window.confirm('Are you sure you want to delete this record?')) {
       try {
         await axios.delete(`http://localhost:5000/api/service-records/${recordNumber}`);
         setSuccess('Service record deleted successfully');
-        
+
         // Clear success message after 3 seconds
         setTimeout(() => {
           setSuccess('');
         }, 3000);
-        
+
         // Refresh data
         fetchData();
       } catch (err) {
@@ -138,7 +138,7 @@ const ServiceRecords = () => {
       }
     }
   };
-  
+
   const onGenerateBill = async (recordNumber) => {
     try {
       window.open(`http://localhost:5000/api/reports/bill/${recordNumber}`, '_blank');
@@ -147,7 +147,7 @@ const ServiceRecords = () => {
       setError('Failed to generate bill');
     }
   };
-  
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -155,34 +155,34 @@ const ServiceRecords = () => {
       </div>
     );
   }
-  
+
   return (
     <div className="py-6">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Service Records Management</h1>
-      
+
       {/* Add/Edit Service Record Form */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-8 border border-gray-100">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">
           {editMode ? 'Edit Service Record' : 'Add New Service Record'}
         </h2>
-        
+
         {formError && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             {formError}
           </div>
         )}
-        
+
         {success && (
           <div className="bg-green-100 border border-green-800 text-gray-800 px-4 py-3 rounded mb-4">
             {success}
           </div>
         )}
-        
+
         <form onSubmit={onSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="mb-4">
-              <label 
-                htmlFor="plateNumber" 
+              <label
+                htmlFor="plateNumber"
                 className="block text-gray-800 text-sm font-medium mb-2"
               >
                 Car Plate Number
@@ -202,10 +202,10 @@ const ServiceRecords = () => {
                 ))}
               </select>
             </div>
-            
+
             <div className="mb-4">
-              <label 
-                htmlFor="serviceCode" 
+              <label
+                htmlFor="serviceCode"
                 className="block text-gray-800 text-sm font-medium mb-2"
               >
                 Service
@@ -225,10 +225,10 @@ const ServiceRecords = () => {
                 ))}
               </select>
             </div>
-            
+
             <div className="mb-4">
-              <label 
-                htmlFor="amountPaid" 
+              <label
+                htmlFor="amountPaid"
                 className="block text-gray-800 text-sm font-medium mb-2"
               >
                 Amount Paid (RWF)
@@ -244,7 +244,7 @@ const ServiceRecords = () => {
               />
             </div>
           </div>
-          
+
           <div className="mt-2 flex space-x-2">
             <button
               type="submit"
@@ -252,7 +252,7 @@ const ServiceRecords = () => {
             >
               {editMode ? 'Update Record' : 'Add Record'}
             </button>
-            
+
             {editMode && (
               <button
                 type="button"
@@ -265,11 +265,11 @@ const ServiceRecords = () => {
           </div>
         </form>
       </div>
-      
+
       {/* Service Records List */}
       <div className="bg-white rounded-lg shadow-md p-6 border border-gray-100">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Service Records List</h2>
-        
+
         {error ? (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             {error}
